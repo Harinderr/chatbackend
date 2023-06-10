@@ -10,7 +10,7 @@ const bcrypt = require("bcryptjs");
 const bcryptSalt = bcrypt.genSaltSync(10);
 const Message = require('./messageSchema')
 const app = express();
-
+const PORT = process.env.PORT || 3000
 app.use(
   cors({
     credentials: true,
@@ -144,7 +144,7 @@ app.post("/register", async function (req, res) {
   }
 });
 
-const server = app.listen(3000);
+const server = app.listen(PORT);
 
 const wss = new ws.WebSocketServer({ server });
 wss.on("connection", (connection,req) => {
