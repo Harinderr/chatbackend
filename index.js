@@ -23,7 +23,7 @@ app.use(cookieparser());
 
 async function connectToDB() {
   try {
-    mongoose.connect(process.env.MONGO_URI, {
+    mongoose.connect(process.env.MONGO_PASS, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
