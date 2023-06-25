@@ -36,8 +36,8 @@ connectToDB();
 const jwtSecret = process.env.JWT_SECRET;
 const userSchema = new mongoose.Schema(
   {
-    username: { type: String, unique: true },
-    password: String,
+    username: { type: String, unique: true , required: true },
+    password: {type : String, required : true},
   },
   { timestamps: true }
 );
@@ -107,7 +107,7 @@ function getUserDataFromRequest(req){
 
   
 app.get('/messages/:userId',  async (req,res) =>{
-  const {userId} = req.params
+  try { const {userId} = req.params
   const userData = await getUserDataFromRequest(req)
   const ourUserId = userData.userid
   
@@ -116,7 +116,11 @@ app.get('/messages/:userId',  async (req,res) =>{
     recipient : {$in : [userId, ourUserId]}
     
   }).sort({createdAT:1}).exec()
-res.json(chatData)
+res.json(chatData)} 
+
+catch (err){
+   console.log('not able to recieve messages')
+}
 })
 
 
@@ -144,16 +148,29 @@ app.post("/register", async function (req, res) {
   }
 });
 
+app.get('/people', (req,res) => {
+  User.find({})
+  .exec()
+  .then(allUsers => {
+    res.json(allUsers);
+  })
+  .catch(error => {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  });
+})
+
 const server = app.listen(PORT);
 
 const wss = new ws.WebSocketServer({ server });
 wss.on("connection", (connection,req) => {
+  console.log([...wss.clients].length) 
   const cookies = req.headers.cookie
   if(cookies){
     const tokenCookieString = cookies.split(';').find(str => str.startsWith('token'))
    if(tokenCookieString){
     const token = tokenCookieString.split('=')[1]
-    console.log(token);
+   
     if(token){
         jwt.verify(token, jwtSecret, {}, (err,userData)=> {
             if(err) throw err
@@ -180,7 +197,7 @@ connection.on('message', (message)=> {
     .forEach(c => c.send(JSON.stringify({text,
     sender : connection.userid,
     recipient,
-    id: messageDoc._id
+    _id: messageDoc._id
     })))
    
   }
@@ -188,7 +205,7 @@ connection.on('message', (message)=> {
   
   [...wss.clients].forEach(client => {
   client.send(JSON.stringify({
-    online : [...wss.clients].map(c => ({userid : c.userid , username : c.username}))
+    online : [...wss.clients].map(c => ({userid : c.userid , username : c.username,online:true}))
   }))
   })
 });
