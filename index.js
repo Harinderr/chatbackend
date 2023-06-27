@@ -152,7 +152,11 @@ app.get('/people', (req,res) => {
   User.find({})
   .exec()
   .then(allUsers => {
-    res.json(allUsers);
+  const newlist =  allUsers.map(val => {
+    const {_id, username} = val
+    return {_id, username}
+  })
+res.json(newlist)
   })
   .catch(error => {
     console.error(error);
@@ -164,7 +168,7 @@ const server = app.listen(PORT);
 
 const wss = new ws.WebSocketServer({ server });
 wss.on("connection", (connection,req) => {
-  console.log([...wss.clients].length) 
+  
   const cookies = req.headers.cookie
   if(cookies){
     const tokenCookieString = cookies.split(';').find(str => str.startsWith('token'))
@@ -205,7 +209,7 @@ connection.on('message', (message)=> {
   
   [...wss.clients].forEach(client => {
   client.send(JSON.stringify({
-    online : [...wss.clients].map(c => ({userid : c.userid , username : c.username,online:true}))
+    online : [...wss.clients].map(c => ({userid : c.userid , username : c.username}))
   }))
   })
 });
