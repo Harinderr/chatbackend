@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-const bodyparser = require("body-parser");
+
 const mongoose = require("mongoose");
 const ws = require("ws");
 const cors = require("cors");
@@ -12,6 +12,7 @@ const Message = require("./messageSchema");
 const app = express();
 const fs = require("fs");
 const PORT = process.env.PORT || 3000;
+
 app.use(
   cors({
     credentials: true,
@@ -46,6 +47,7 @@ const userSchema = new mongoose.Schema(
 const User = mongoose.model("User", userSchema);
 app.get("/profile", (req, res) => {
   const token = req.cookies?.token;
+  
   if (token) {
     jwt.verify(
       token,
