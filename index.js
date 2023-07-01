@@ -11,7 +11,7 @@ const bcryptSalt = bcrypt.genSaltSync(10);
 const Message = require("./messageSchema");
 const app = express();
 const fs = require("fs");
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 80;
 
 app.use(
   cors({
